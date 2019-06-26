@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, TextInput, Text } from 'react-native';
+import { StyleSheet, View, TextInput, Text, ScrollView } from 'react-native';
 import { Container, List, ListItem, Content, Item, Input, Button } from 'native-base';
 
 export default class NewRule extends Component {
@@ -10,7 +10,7 @@ export default class NewRule extends Component {
             { key: 3, url: "https://www.netflix.com/" }
         ],
         urlToCreateRule: ''
-    } 
+    }
 
     changeUrlHandler = (text) => {
         this.setState({
@@ -19,40 +19,50 @@ export default class NewRule extends Component {
     }
 
     createRule = () => {
-        if (this.state.urlToCreateRule !== ''){
+        if (this.state.urlToCreateRule !== '') {
             const body = {
                 'relationshipId': 1,
                 'siteUri': this.state.urlToCreateRule
             }
-            fetch('https://accessblockerapi.azurewebsites.net/Rules', { method: 'POST', body: body })
-            .catch((r) => alert('Erro ao criar regra. Erro: ' + r.status))
-        }        
+            fetch('https://accessblockerapi.azurewebsites.net/Rules',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                }).catch(() => 'Erro ao criar regra');
+        }
     }
 
-    render(){
+    render() {
         return (
-        <Container>
-            <Content>
-                <Text style={styles.label}>Digite a URL:</Text>
-                <Item regular>
-                    <Input style={styles.input}
-                        placeholder="Exemplo: https://youtube.com"
-                        value={ this.state.urlToCreateRule }
-                        onChangeText={(text) => this.changeUrlHandler(text)}/>
-                </Item>
-                <Button block style={styles.button} onPress={() => this.createRule()}>
-                    <Text style={styles.buttonText}>Criar regra</Text>
-                </Button>
-                <List>
-                    <Text style={styles.popularRules}>URLs mais populares</Text>
-                    {this.state.mostPopularRules.map(r => 
-                    <ListItem key={r.key} onPress onPress={() => this.changeUrlHandler(r.url)}>
-                        <Text>{r.url}</Text>
-                    </ListItem>)}
-                </List>
-            </Content>
-        </ Container>
-    )};
+            <Container>
+                <Content>
+                    <Text style={styles.label}>Digite a URL:</Text>
+                    <Item regular>
+                        <Input style={styles.input}
+                            placeholder="Exemplo: https://youtube.com"
+                            value={this.state.urlToCreateRule}
+                            onChangeText={(text) => this.changeUrlHandler(text)} />
+                    </Item>
+                    <Button block style={styles.button} onPress={() => this.createRule()}>
+                        <Text style={styles.buttonText}>Criar regra</Text>
+                    </Button>
+                    <ScrollView>
+                        <List>
+                            <Text style={styles.popularRules}>URLs mais populares</Text>
+                            {this.state.mostPopularRules.map(r =>
+                                <ListItem key={r.key} onPress onPress={() => this.changeUrlHandler(r.url)}>
+                                    <Text>{r.url}</Text>
+                                </ListItem>)}
+                        </List>
+                    </ScrollView>
+                </Content>
+            </ Container>
+        )
+    };
 }
 
 const styles = StyleSheet.create({
