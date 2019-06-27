@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, ScrollView } from 'react-native';
-import { Container, List, ListItem, Content, Item, Input, Button } from 'native-base';
+import { Container, List, ListItem, Content, Item, Input, Button, Spinner } from 'native-base';
 
 export default class NewRule extends Component {
     state = {
@@ -11,7 +11,8 @@ export default class NewRule extends Component {
             { key: 4, url: "https://www.wikipedia.com/" },
             { key: 5, url: "https://github.com/" }
         ],
-        urlToCreateRule: ''
+        urlToCreateRule: '',
+        isLoading: false
     }
 
     changeUrlHandler = (text) => {
@@ -22,6 +23,7 @@ export default class NewRule extends Component {
 
     createRule = () => {
         if (this.state.urlToCreateRule !== '') {
+            this.toogleLoading();
             const body = {
                 'relationshipId': 1,
                 'siteUri': this.state.urlToCreateRule
@@ -34,10 +36,16 @@ export default class NewRule extends Component {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(body)
-                })
-                .then(() => alert('Regra para a url "'+ this.state.urlToCreateRule +  '" criada com sucesso'))
-                .catch(() => 'Erro ao criar regra');
+                })                
+                .catch(() => 'Erro ao criar regra')
+                .then(() => this.toogleLoading())
         }
+    }
+
+    toogleLoading = () => {
+        this.setState({
+            isLoading: !this.state.isLoading
+        })
     }
 
     render() {
@@ -54,6 +62,7 @@ export default class NewRule extends Component {
                     <Button block style={styles.button} onPress={() => this.createRule()}>
                         <Text style={styles.buttonText}>Criar regra</Text>
                     </Button>
+                    {this.state.isLoading ? <Spinner color='blue' /> : null}
                     <ScrollView>
                         <List>
                             <Text style={styles.popularRules}>URLs mais populares</Text>
